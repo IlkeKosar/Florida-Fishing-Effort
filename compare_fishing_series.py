@@ -75,14 +75,14 @@ def evaluate_fishing_series(df, output_dir='fishing_comparison', seeds=(42,123,2
                 try:
                     r=fit_sarima(fitting,order,seasonal)
                     v=rolling(r,validation)
-                    valid=validation.notna().to_numpy(dtype=float)
+                    valid=validation.notna().to_numpy(dtype=bool)
                     if not np.isfinite(v[valid]).all(): continue
                     mae=mean_absolute_error(validation.to_numpy(dtype=float)[valid],v[valid])
                     tuning.append(dict(series=name,fold=fold,model='sarima',settings=str((order,seasonal)),seed=None,validation_MAE=mae))
                     if mae<best: best=mae;selected=(r,order,seasonal)
                 except (RuntimeError,ValueError,np.linalg.LinAlgError) as e:
                     failures.append(dict(series=name,fold=fold,model='sarima',settings=str((order,seasonal)),error=str(e)))
-            if selected is None: raise RuntimeError(f'No valid SARIMA for {name}, fold {fold}')
+            if selected is None: raise RuntimeError(f'No  SARIMA for {name}, fold {fold}')
             r,order,seasonal=selected
             r=r.append(validation,refit=False)
             out['sarima']=pd.Series(rolling(r,test),index=test.index).reindex(idx)
